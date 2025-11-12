@@ -117,11 +117,9 @@ Please follow the repository’s contribution guidelines (if present) and adhere
 
 ---
 
-## License  
-Specify the license under which you’re releasing the project (e.g., MIT).  
+## License    
 ```
 MIT License
-© [Year] [Your Name/Organization]
 ```
 
 ---
