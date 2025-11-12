@@ -19,6 +19,10 @@ This server provides a REST API to fetch player statistics from the official PUB
     ```
     PUBG_API_KEY="YOUR_PUBG_API_KEY_HERE"
     ```
+    If there are server errors try adding the following to the .env file:
+    ```
+    PORT=5001
+    ```
     You can obtain an API key from the [PUBG Developer Portal](https://developer.pubg.com/).
 
 ## Running the Server
@@ -46,7 +50,7 @@ Fetches detailed statistics for one or more players.
     -   `playerNames` (required): A comma-separated string of player account names.
 -   **Example Request:**
     ```
-    http://localhost:5000/api/players?playerNames=TGLTN,shroud
+    http://localhost:5001/api/players?playerNames=TGLTN,shroud
     ```
 -   **Success Response (200):**
     Returns a JSON array of player objects with their latest ranked season stats.
