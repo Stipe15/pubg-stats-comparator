@@ -103,7 +103,7 @@ const StatsDisplay = ({ stats, loading }) => {
             <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
-              <YAxis />
+              <YAxis allowDecimals={false} />
               <Tooltip />
               <Legend />
               <Bar dataKey="wins" fill="#ffc658" barSize={50}>

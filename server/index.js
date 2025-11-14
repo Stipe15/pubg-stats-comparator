@@ -65,7 +65,7 @@ const calculateSummaryStats = (gameModeStats) => {
     }
   }
 
-  summary.kd = summary.roundsPlayed > 0 ? summary.kills / summary.losses : 0;
+  summary.kd = summary.losses > 0 ? summary.kills / summary.losses : summary.kills;
   summary.adr = summary.roundsPlayed > 0 ? summary.damageDealt / summary.roundsPlayed : 0;
 
   return summary;
