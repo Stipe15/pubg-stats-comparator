@@ -48,6 +48,7 @@ const fetchCurrentSeason = async () => {
 const calculateSummaryStats = (gameModeStats) => {
   const summary = {
     kills: 0,
+    deaths: 0,
     wins: 0,
     losses: 0,
     damageDealt: 0,
@@ -58,6 +59,7 @@ const calculateSummaryStats = (gameModeStats) => {
     if (gameModeStats.hasOwnProperty(mode)) {
       const stats = gameModeStats[mode];
       summary.kills += stats.kills || 0;
+      summary.deaths += stats.deaths || 0;
       summary.wins += stats.wins || 0;
       summary.losses += stats.losses || 0;
       summary.damageDealt += stats.damageDealt || 0;
@@ -65,7 +67,7 @@ const calculateSummaryStats = (gameModeStats) => {
     }
   }
 
-  summary.kd = summary.losses > 0 ? summary.kills / summary.losses : summary.kills;
+  summary.kd = summary.deaths > 0 ? summary.kills / summary.deaths : summary.kills;
   summary.adr = summary.roundsPlayed > 0 ? summary.damageDealt / summary.roundsPlayed : 0;
 
   return summary;

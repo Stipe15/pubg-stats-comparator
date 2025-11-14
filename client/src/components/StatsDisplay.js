@@ -20,9 +20,25 @@ const StatsDisplay = ({ stats, loading }) => {
     );
   }
 
+  const allStatsZero = stats.every(
+    player =>
+      player.summaryStats.kd === 0 &&
+      player.summaryStats.adr === 0 &&
+      player.summaryStats.wins === 0 &&
+      player.summaryStats.roundsPlayed === 0
+  );
+
+  if (allStatsZero) {
+    return (
+      <Alert severity="info" sx={{ mt: 2 }}>
+        No data available for the selected players in the current season.
+      </Alert>
+    );
+  }
+
   const chartData = stats.map(player => ({
     name: player.name,
-    kd: parseFloat(player.summaryStats.kd.toFixed(2)),
+    kd: parseFloat((player.summaryStats.kd / 100).toFixed(2)),
     adr: parseFloat(player.summaryStats.adr.toFixed(2)),
     wins: player.summaryStats.wins,
   }));
@@ -50,7 +66,7 @@ const StatsDisplay = ({ stats, loading }) => {
                 <TableCell component="th" scope="row">
                   {player.name}
                 </TableCell>
-                <TableCell align="right">{player.summaryStats.kd.toFixed(2)}</TableCell>
+                <TableCell align="right">{(player.summaryStats.kd / 100).toFixed(2)}</TableCell>
                 <TableCell align="right">{player.summaryStats.adr.toFixed(2)}</TableCell>
                 <TableCell align="right">{player.summaryStats.wins}</TableCell>
                 <TableCell align="right">{player.summaryStats.roundsPlayed}</TableCell>
