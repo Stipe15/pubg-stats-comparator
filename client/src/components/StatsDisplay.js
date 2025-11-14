@@ -1,6 +1,7 @@
 // client/src/components/StatsDisplay.js
 import React from 'react';
-import { Grid, Paper, Typography, Box, CircularProgress, Alert } from '@mui/material';
+import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
 const StatsDisplay = ({ stats, loading }) => {
   if (loading) {
@@ -19,54 +20,98 @@ const StatsDisplay = ({ stats, loading }) => {
     );
   }
 
-  // A list of game modes we care about, in a preferred order of display.
-  const gameModes = ['squad-fpp', 'squad', 'duo-fpp', 'duo', 'solo-fpp', 'solo'];
+  const chartData = stats.map(player => ({
+    name: player.name,
+    kd: parseFloat(player.summaryStats.kd.toFixed(2)),
+    adr: parseFloat(player.summaryStats.adr.toFixed(2)),
+    wins: player.summaryStats.wins,
+  }));
 
   return (
     <Box sx={{ mt: 4 }}>
       <Typography variant="h5" component="h2" gutterBottom align="center">
-        Player Stats by Game Mode
+        Player Stats Summary
       </Typography>
       
-      <Grid container spacing={3} justifyContent="flex-start">
-        {stats.map((player) => {
-          // Filter and sort the available stats based on our preferred order
-          const availableModes = player.seasonStats 
-            ? Object.keys(player.seasonStats)
-                .filter(mode => gameModes.includes(mode) && player.seasonStats[mode].roundsPlayed > 0)
-                .sort((a, b) => gameModes.indexOf(a) - gameModes.indexOf(b))
-            : [];
+      <TableContainer component={Paper} sx={{ mb: 4 }}>
+        <Table>
+          <TableHead>
+            <TableRow>
+              <TableCell>Player</TableCell>
+              <TableCell align="right">K/D</TableCell>
+              <TableCell align="right">ADR</TableCell>
+              <TableCell align="right">Wins</TableCell>
+              <TableCell align="right">Rounds Played</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
+            {stats.map((player) => (
+              <TableRow key={player.id}>
+                <TableCell component="th" scope="row">
+                  {player.name}
+                </TableCell>
+                <TableCell align="right">{player.summaryStats.kd.toFixed(2)}</TableCell>
+                <TableCell align="right">{player.summaryStats.adr.toFixed(2)}</TableCell>
+                <TableCell align="right">{player.summaryStats.wins}</TableCell>
+                <TableCell align="right">{player.summaryStats.roundsPlayed}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
 
-          return (
-            <Grid item xs={12} md={6} lg={4} key={player.id}>
-              <Paper elevation={3} sx={{ p: 2, height: '100%' }}>
-                <Typography variant="h6" component="h3" color="primary" gutterBottom>{player.name}</Typography>
-                
-                {availableModes.length > 0 ? (
-                  availableModes.map(mode => {
-                    const modeStats = player.seasonStats[mode];
-                    const kd = (modeStats.kills || 0) / (modeStats.losses || 1);
-                    const adr = (modeStats.damageDealt || 0) / (modeStats.roundsPlayed || 1);
-
-                    return (
-                      <Box key={mode} sx={{ mb: 2, p: 1.5, border: '1px solid #333', borderRadius: 1 }}>
-                        <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>{mode.replace(/-/g, ' ').toUpperCase()}</Typography>
-                        <Grid container spacing={1}>
-                          <Grid item xs={6}><Typography><b>K/D:</b> {kd.toFixed(2)}</Typography></Grid>
-                          <Grid item xs={6}><Typography><b>ADR:</b> {adr.toFixed(2)}</Typography></Grid>
-                          <Grid item xs={6}><Typography><b>Wins:</b> {modeStats.wins || 0}</Typography></Grid>
-                          <Grid item xs={6}><Typography><b>Rounds:</b> {modeStats.roundsPlayed || 0}</Typography></Grid>
-                        </Grid>
-                      </Box>
-                    );
-                  })
-                ) : (
-                  <Typography>No recent unranked stats found.</Typography>
-                )}
-              </Paper>
-            </Grid>
-          );
-        })}
+      <Grid container spacing={4}>
+        <Grid item xs={12} md={4}>
+          <Typography variant="h6" component="h3" gutterBottom align="center">
+            K/D Ratio
+          </Typography>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="kd" fill="#8884d8" barSize={50}>
+                <LabelList dataKey="kd" position="top" />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Typography variant="h6" component="h3" gutterBottom align="center">
+            Average Damage per Round (ADR)
+          </Typography>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="adr" fill="#82ca9d" barSize={50}>
+                <LabelList dataKey="adr" position="top" />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Typography variant="h6" component="h3" gutterBottom align="center">
+            Wins
+          </Typography>
+          <ResponsiveContainer width="100%" height={400}>
+            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="wins" fill="#ffc658" barSize={50}>
+                <LabelList dataKey="wins" position="top" />
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </Grid>
       </Grid>
     </Box>
   );

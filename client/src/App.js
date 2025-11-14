@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Container, Typography, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
 import PlayerInput from './components/PlayerInput';
 import StatsDisplay from './components/StatsDisplay';
-import Footer from './components/Footer';
+// import Footer from './components/Footer';
 import Header from './components/Header';
 import axios from 'axios';
 
@@ -42,7 +42,7 @@ function App() {
     setError(null);
 
     try {
-      const response = await axios.get(`http://localhost:5001/api/players?playerNames=${playerNames.join(',')}`);
+      const response = await axios.get(`http://localhost:5001/api/players/summary?playerNames=${playerNames.join(',')}`);
       setPlayerStats(response.data);
     } catch (err) {
       setError('Failed to fetch player data. Make sure the server is running and player names are correct.');
@@ -64,7 +64,6 @@ function App() {
         {error && <Typography color="error" align="center" style={{ margin: '1rem' }}>{error}</Typography>}
         <StatsDisplay stats={playerStats} loading={loading} />
       </Container>
-      <Footer />
     </ThemeProvider>
   );
 }
