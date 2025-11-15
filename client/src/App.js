@@ -29,12 +29,14 @@ const darkTheme = createTheme({
 
 function App() {
   const [playerStats, setPlayerStats] = useState([]);
+  const [charts, setCharts] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchPlayerStats = async (playerNames) => {
     if (playerNames.length === 0) {
       setPlayerStats([]);
+      setCharts(null);
       return;
     }
 
@@ -43,7 +45,8 @@ function App() {
 
     try {
       const response = await axios.get(`http://localhost:5001/api/players/summary?playerNames=${playerNames.join(',')}`);
-      setPlayerStats(response.data);
+      setPlayerStats(response.data.stats);
+      setCharts(response.data.charts);
     } catch (err) {
       setError('Failed to fetch player data. Make sure the server is running and player names are correct.');
       console.error(err);
@@ -62,7 +65,7 @@ function App() {
         </Typography>
         <PlayerInput onSearch={fetchPlayerStats} loading={loading} />
         {error && <Typography color="error" align="center" style={{ margin: '1rem' }}>{error}</Typography>}
-        <StatsDisplay stats={playerStats} loading={loading} />
+        <StatsDisplay stats={playerStats} charts={charts} loading={loading} />
       </Container>
     </ThemeProvider>
   );

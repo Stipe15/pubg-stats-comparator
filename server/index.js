@@ -46,6 +46,7 @@ const fetchCurrentSeason = async () => {
 
 
 const calculateSummaryStats = (gameModeStats) => {
+  console.log('Calculating summary stats from gameModeStats:', JSON.stringify(gameModeStats, null, 2));
   const summary = {
     kills: 0,
     deaths: 0,
@@ -72,6 +73,9 @@ const calculateSummaryStats = (gameModeStats) => {
 
   return summary;
 };
+
+const { spawn } = require('child_process');
+const fs = require('fs');
 
 app.get('/api/players/summary', async (req, res) => {
   const playerNames = req.query.playerNames;
@@ -113,7 +117,44 @@ app.get('/api/players/summary', async (req, res) => {
     });
 
     const playersWithSummaryStats = await Promise.all(summaryStatsPromises);
-    res.json(playersWithSummaryStats);
+
+    const pythonProcess = spawn('python', ['generate_chart.py']);
+
+    pythonProcess.stdin.write(JSON.stringify(playersWithSummaryStats));
+    pythonProcess.stdin.end();
+
+    pythonProcess.stdout.on('data', (data) => {
+      console.log(`Python script output: ${data}`);
+    });
+
+    pythonProcess.stderr.on('data', (data) => {
+      console.error(`Python script error: ${data}`);
+    });
+
+    pythonProcess.on('close', (code) => {
+      console.log(`Python script exited with code ${code}`);
+      if (code === 0) {
+        const kdChart = fs.readFileSync('kd_chart.png', 'base64');
+        const adrChart = fs.readFileSync('adr_chart.png', 'base64');
+        const winsChart = fs.readFileSync('wins_chart.png', 'base64');
+
+        res.json({
+          stats: playersWithSummaryStats,
+          charts: {
+            kd: `data:image/png;base64,${kdChart}`,
+            adr: `data:image/png;base64,${adrChart}`,
+            wins: `data:image/png;base64,${winsChart}`,
+          }
+        });
+
+        // Clean up the generated files
+        fs.unlinkSync('kd_chart.png');
+        fs.unlinkSync('adr_chart.png');
+        fs.unlinkSync('wins_chart.png');
+      } else {
+        res.status(500).json({ error: 'Failed to generate charts.' });
+      }
+    });
 
   } catch (error) {
     const errorMessage = error.message;

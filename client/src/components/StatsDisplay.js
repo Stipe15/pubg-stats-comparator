@@ -1,9 +1,8 @@
 // client/src/components/StatsDisplay.js
 import React from 'react';
 import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from 'recharts';
 
-const StatsDisplay = ({ stats, loading }) => {
+const StatsDisplay = ({ stats, charts, loading }) => {
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -35,13 +34,6 @@ const StatsDisplay = ({ stats, loading }) => {
       </Alert>
     );
   }
-
-  const chartData = stats.map(player => ({
-    name: player.name,
-    kd: parseFloat((player.summaryStats.kd / 100).toFixed(2)),
-    adr: parseFloat(player.summaryStats.adr.toFixed(2)),
-    wins: player.summaryStats.wins,
-  }));
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -76,59 +68,28 @@ const StatsDisplay = ({ stats, loading }) => {
         </Table>
       </TableContainer>
 
-      <Grid container spacing={4}>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" component="h3" gutterBottom align="center">
-            K/D Ratio
-          </Typography>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="kd" fill="#8884d8" barSize={50}>
-                <LabelList dataKey="kd" position="top" />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
+      {charts && (
+        <Grid container spacing={4}>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" component="h3" gutterBottom align="center">
+              K/D Ratio
+            </Typography>
+            <img src={charts.kd} alt="K/D Chart" style={{ maxWidth: '100%', height: 'auto' }} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" component="h3" gutterBottom align="center">
+              Average Damage per Round (ADR)
+            </Typography>
+            <img src={charts.adr} alt="ADR Chart" style={{ maxWidth: '100%', height: 'auto' }} />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <Typography variant="h6" component="h3" gutterBottom align="center">
+              Wins
+            </Typography>
+            <img src={charts.wins} alt="Wins Chart" style={{ maxWidth: '100%', height: 'auto' }} />
+          </Grid>
         </Grid>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" component="h3" gutterBottom align="center">
-            Average Damage per Round (ADR)
-          </Typography>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
-              <YAxis />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="adr" fill="#82ca9d" barSize={50}>
-                <LabelList dataKey="adr" position="top" />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </Grid>
-        <Grid item xs={12} md={4}>
-          <Typography variant="h6" component="h3" gutterBottom align="center">
-            Wins
-          </Typography>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 75 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" interval={0} angle={-45} textAnchor="end" />
-              <YAxis allowDecimals={false} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="wins" fill="#ffc658" barSize={50}>
-                <LabelList dataKey="wins" position="top" />
-              </Bar>
-            </BarChart>
-          </ResponsiveContainer>
-        </Grid>
-      </Grid>
+      )}
     </Box>
   );
 };
