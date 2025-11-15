@@ -69,20 +69,20 @@ const StatsDisplay = ({ stats, charts, loading }) => {
       </TableContainer>
 
       {charts && (
-        <Grid container spacing={4}>
-          <Grid item xs={12} md={6}>
+        <Grid container spacing={4} justifyContent="center">
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h6" component="h3" gutterBottom align="center">
               K/D Ratio
             </Typography>
             <img src={charts.kd} alt="K/D Chart" style={{ maxWidth: '100%', height: 'auto' }} />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h6" component="h3" gutterBottom align="center">
               Average Damage per Round (ADR)
             </Typography>
             <img src={charts.adr} alt="ADR Chart" style={{ maxWidth: '100%', height: 'auto' }} />
           </Grid>
-          <Grid item xs={12} md={6}>
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <Typography variant="h6" component="h3" gutterBottom align="center">
               Wins
             </Typography>
