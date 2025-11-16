@@ -1,8 +1,57 @@
 // client/src/components/StatsDisplay.js
-import React from 'react';
-import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import React, { useState, useMemo } from 'react';
+import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
+
+const useSortableData = (items, config = null) => {
+  const [sortConfig, setSortConfig] = useState(config);
+
+  const sortedItems = useMemo(() => {
+    let sortableItems = [...items];
+    if (sortConfig !== null) {
+      sortableItems.sort((a, b) => {
+        if (a.summaryStats[sortConfig.key] < b.summaryStats[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? -1 : 1;
+        }
+        if (a.summaryStats[sortConfig.key] > b.summaryStats[sortConfig.key]) {
+          return sortConfig.direction === 'ascending' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return sortableItems;
+  }, [items, sortConfig]);
+
+  const requestSort = (key) => {
+    let direction = 'ascending';
+    if (
+      sortConfig &&
+      sortConfig.key === key &&
+      sortConfig.direction === 'ascending'
+    ) {
+      direction = 'descending';
+    }
+    setSortConfig({ key, direction });
+  };
+
+  return { items: sortedItems, requestSort, sortConfig };
+};
+
+const headCells = [
+  { id: 'name', numeric: false, disablePadding: true, label: 'Player' },
+  { id: 'kd', numeric: true, disablePadding: false, label: 'K/D' },
+  { id: 'adr', numeric: true, disablePadding: false, label: 'ADR' },
+  { id: 'kpr', numeric: true, disablePadding: false, label: 'Kills per Round' },
+  { id: 'kills', numeric: true, disablePadding: false, label: 'Kills' },
+  { id: 'assists', numeric: true, disablePadding: false, label: 'Assists' },
+  { id: 'longestKill', numeric: true, disablePadding: false, label: 'Longest Kill' },
+  { id: 'damageDealt', numeric: true, disablePadding: false, label: 'Damage Given' },
+  { id: 'roundsPlayed', numeric: true, disablePadding: false, label: 'Rounds Played' },
+  { id: 'wins', numeric: true, disablePadding: false, label: 'Wins' },
+];
 
 const StatsDisplay = ({ stats, charts, loading }) => {
+  const { items: sortedStats, requestSort, sortConfig } = useSortableData(stats, { key: 'kpr', direction: 'descending' });
+
   if (loading) {
     return (
       <Box sx={{ display: 'flex', justifyContent: 'center', my: 4 }}>
@@ -45,20 +94,26 @@ const StatsDisplay = ({ stats, charts, loading }) => {
         <Table>
           <TableHead>
             <TableRow>
-              <TableCell>Player</TableCell>
-              <TableCell align="right">K/D</TableCell>
-              <TableCell align="right">ADR</TableCell>
-              <TableCell align="right">Kills per Round</TableCell>
-              <TableCell align="right">Kills</TableCell>
-              <TableCell align="right">Assists</TableCell>
-              <TableCell align="right">Longest Kill</TableCell>
-              <TableCell align="right">Damage Given</TableCell>
-              <TableCell align="right">Rounds Played</TableCell>
-              <TableCell align="right">Wins</TableCell>
+              {headCells.map((headCell) => (
+                <TableCell
+                  key={headCell.id}
+                  align={headCell.numeric ? 'right' : 'left'}
+                  padding={headCell.disablePadding ? 'none' : 'normal'}
+                  sortDirection={sortConfig && sortConfig.key === headCell.id ? sortConfig.direction : false}
+                >
+                  <TableSortLabel
+                    active={sortConfig && sortConfig.key === headCell.id}
+                    direction={sortConfig && sortConfig.key === headCell.id ? sortConfig.direction : 'asc'}
+                    onClick={() => requestSort(headCell.id)}
+                  >
+                    {headCell.label}
+                  </TableSortLabel>
+                </TableCell>
+              ))}
             </TableRow>
           </TableHead>
           <TableBody>
-            {stats.map((player) => (
+            {sortedStats.map((player) => (
               <TableRow key={player.id}>
                 <TableCell component="th" scope="row">
                   {player.name}
