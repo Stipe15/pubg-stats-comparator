@@ -8,6 +8,8 @@ def generate_charts(stats):
     kd_ratios = [player['summaryStats']['kd'] / 100 for player in stats]
     adr_values = [player['summaryStats']['adr'] for player in stats]
     wins = [player['summaryStats']['wins'] for player in stats]
+    kpr_values = [player['summaryStats']['kpr'] for player in stats]
+    kills_values = [player['summaryStats']['kills'] for player in stats]
 
     # K/D Ratio Chart
     plt.figure(figsize=(4, 2.4))
@@ -37,6 +39,26 @@ def generate_charts(stats):
     plt.xticks(rotation=45, ha='right')
     plt.tight_layout()
     plt.savefig('wins_chart.png')
+    plt.close()
+
+    # Kills per Round Chart
+    plt.figure(figsize=(4, 2.4))
+    plt.bar(player_names, kpr_values, color='lightcoral')
+    plt.ylabel('Kills per Round (KPR)')
+    plt.title('Kills per Round Comparison')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig('kpr_chart.png')
+    plt.close()
+
+    # Kills Chart
+    plt.figure(figsize=(4, 2.4))
+    plt.bar(player_names, kills_values, color='#ff9999')
+    plt.ylabel('Kills')
+    plt.title('Kills Comparison')
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    plt.savefig('kills_chart.png')
     plt.close()
 
 if __name__ == '__main__':

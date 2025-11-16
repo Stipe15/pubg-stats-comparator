@@ -48,8 +48,13 @@ const StatsDisplay = ({ stats, charts, loading }) => {
               <TableCell>Player</TableCell>
               <TableCell align="right">K/D</TableCell>
               <TableCell align="right">ADR</TableCell>
-              <TableCell align="right">Wins</TableCell>
+              <TableCell align="right">Kills per Round</TableCell>
+              <TableCell align="right">Kills</TableCell>
+              <TableCell align="right">Assists</TableCell>
+              <TableCell align="right">Longest Kill</TableCell>
+              <TableCell align="right">Damage Given</TableCell>
               <TableCell align="right">Rounds Played</TableCell>
+              <TableCell align="right">Wins</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -60,8 +65,13 @@ const StatsDisplay = ({ stats, charts, loading }) => {
                 </TableCell>
                 <TableCell align="right">{(player.summaryStats.kd / 100).toFixed(2)}</TableCell>
                 <TableCell align="right">{player.summaryStats.adr.toFixed(2)}</TableCell>
-                <TableCell align="right">{player.summaryStats.wins}</TableCell>
+                <TableCell align="right">{player.summaryStats.kpr.toFixed(2)}</TableCell>
+                <TableCell align="right">{player.summaryStats.kills}</TableCell>
+                <TableCell align="right">{player.summaryStats.assists}</TableCell>
+                <TableCell align="right">{player.summaryStats.longestKill.toFixed(2)}</TableCell>
+                <TableCell align="right">{player.summaryStats.damageDealt.toFixed(2)}</TableCell>
                 <TableCell align="right">{player.summaryStats.roundsPlayed}</TableCell>
+                <TableCell align="right">{player.summaryStats.wins}</TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -87,6 +97,18 @@ const StatsDisplay = ({ stats, charts, loading }) => {
               Wins
             </Typography>
             <img src={charts.wins} alt="Wins Chart" style={{ maxWidth: '100%', height: 'auto' }} />
+          </Grid>
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Typography variant="h6" component="h3" gutterBottom align="center">
+              Kills per Round
+            </Typography>
+            <img src={charts.kpr} alt="Kills per Round Chart" style={{ maxWidth: '100%', height: 'auto' }} />
+          </Grid>
+          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <Typography variant="h6" component="h3" gutterBottom align="center">
+              Kills
+            </Typography>
+            <img src={charts.kills} alt="Kills Chart" style={{ maxWidth: '100%', height: 'auto' }} />
           </Grid>
         </Grid>
       )}

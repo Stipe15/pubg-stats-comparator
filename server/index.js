@@ -54,6 +54,9 @@ const calculateSummaryStats = (gameModeStats) => {
     losses: 0,
     damageDealt: 0,
     roundsPlayed: 0,
+    assists: 0,
+    maxKillStreaks: 0,
+    longestKill: 0,
   };
 
   for (const mode in gameModeStats) {
@@ -65,11 +68,19 @@ const calculateSummaryStats = (gameModeStats) => {
       summary.losses += stats.losses || 0;
       summary.damageDealt += stats.damageDealt || 0;
       summary.roundsPlayed += stats.roundsPlayed || 0;
+      summary.assists += stats.assists || 0;
+      if ((stats.maxKillStreaks || 0) > summary.maxKillStreaks) {
+        summary.maxKillStreaks = stats.maxKillStreaks;
+      }
+      if ((stats.longestKill || 0) > summary.longestKill) {
+        summary.longestKill = stats.longestKill;
+      }
     }
   }
 
   summary.kd = summary.deaths > 0 ? summary.kills / summary.deaths : summary.kills;
   summary.adr = summary.roundsPlayed > 0 ? summary.damageDealt / summary.roundsPlayed : 0;
+  summary.kpr = summary.roundsPlayed > 0 ? summary.kills / summary.roundsPlayed : 0;
 
   return summary;
 };
@@ -137,6 +148,8 @@ app.get('/api/players/summary', async (req, res) => {
         const kdChart = fs.readFileSync('kd_chart.png', 'base64');
         const adrChart = fs.readFileSync('adr_chart.png', 'base64');
         const winsChart = fs.readFileSync('wins_chart.png', 'base64');
+        const kprChart = fs.readFileSync('kpr_chart.png', 'base64');
+        const killsChart = fs.readFileSync('kills_chart.png', 'base64');
 
         res.json({
           stats: playersWithSummaryStats,
@@ -144,6 +157,8 @@ app.get('/api/players/summary', async (req, res) => {
             kd: `data:image/png;base64,${kdChart}`,
             adr: `data:image/png;base64,${adrChart}`,
             wins: `data:image/png;base64,${winsChart}`,
+            kpr: `data:image/png;base64,${kprChart}`,
+            kills: `data:image/png;base64,${killsChart}`,
           }
         });
 
@@ -151,6 +166,8 @@ app.get('/api/players/summary', async (req, res) => {
         fs.unlinkSync('kd_chart.png');
         fs.unlinkSync('adr_chart.png');
         fs.unlinkSync('wins_chart.png');
+        fs.unlinkSync('kpr_chart.png');
+        fs.unlinkSync('kills_chart.png');
       } else {
         res.status(500).json({ error: 'Failed to generate charts.' });
       }
