@@ -22,11 +22,12 @@ const PlayerInput = ({ onSearch, loading }) => {
   };
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', mb: 4 }}>
-      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2, alignItems: 'center', mb: 4, p: 2, backgroundColor: 'background.paper', borderRadius: 2 }}>
+      <Box sx={{ display: 'flex', gap: 1, alignItems: 'center', width: '100%', maxWidth: '500px' }}>
         <TextField
           label="Enter Player Name (up to 6)"
           variant="outlined"
+          fullWidth
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyPress={(e) => e.key === 'Enter' && handleAddPlayer()}
@@ -36,6 +37,7 @@ const PlayerInput = ({ onSearch, loading }) => {
           variant="contained"
           onClick={handleAddPlayer}
           disabled={playerNames.length >= 6 || !inputValue}
+          sx={{ height: '56px' }}
         >
           Add
         </Button>
@@ -46,16 +48,15 @@ const PlayerInput = ({ onSearch, loading }) => {
             key={name}
             label={name}
             onDelete={() => handleDeletePlayer(name)}
-            color="primary"
           />
         ))}
       </Box>
       <Button
         variant="contained"
-        color="primary"
+        color="secondary"
         onClick={handleSearch}
         disabled={loading || playerNames.length === 0}
-        sx={{ minWidth: '120px' }}
+        sx={{ minWidth: '150px', fontWeight: 'bold' }}
       >
         {loading ? <CircularProgress size={24} color="inherit" /> : 'Compare Stats'}
       </Button>

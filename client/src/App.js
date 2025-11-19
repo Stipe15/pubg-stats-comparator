@@ -1,31 +1,11 @@
 // client/src/App.js
 import React, { useState } from 'react';
-import { Container, Typography, CssBaseline, ThemeProvider, createTheme } from '@mui/material';
+import { Container, Typography, CssBaseline, ThemeProvider, Box } from '@mui/material';
 import PlayerInput from './components/PlayerInput';
 import StatsDisplay from './components/StatsDisplay';
-// import Footer from './components/Footer';
 import Header from './components/Header';
 import axios from 'axios';
-
-// Create a dark theme
-const darkTheme = createTheme({
-  palette: {
-    mode: 'dark',
-    primary: {
-      main: '#1976d2',
-    },
-    background: {
-      default: '#121212',
-      paper: '#1e1e1e',
-    },
-  },
-  typography: {
-    fontFamily: 'Roboto, sans-serif',
-    h4: {
-      fontWeight: 700,
-    },
-  },
-});
+import theme from './theme';
 
 function App() {
   const [playerStats, setPlayerStats] = useState([]);
@@ -56,17 +36,23 @@ function App() {
   };
 
   return (
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <CssBaseline />
       <Header />
-      <Container maxWidth="lg" style={{ marginTop: '2rem', marginBottom: '2rem' }}>
-        <Typography variant="h4" component="h1" gutterBottom align="center">
-          PUBG Player Stats Comparator
-        </Typography>
-        <PlayerInput onSearch={fetchPlayerStats} loading={loading} />
-        {error && <Typography color="error" align="center" style={{ margin: '1rem' }}>{error}</Typography>}
-        <StatsDisplay stats={playerStats} charts={charts} loading={loading} />
-      </Container>
+      <Box sx={{
+        minHeight: '100vh',
+        bgcolor: 'background.default',
+        padding: '2rem 0',
+      }}>
+        <Container maxWidth="lg">
+          <Typography variant="h4" component="h1" gutterBottom align="center" sx={{ color: 'text.primary' }}>
+            PUBG Player Stats Comparator
+          </Typography>
+          <PlayerInput onSearch={fetchPlayerStats} loading={loading} />
+          {error && <Typography color="error" align="center" style={{ margin: '1rem' }}>{error}</Typography>}
+          <StatsDisplay stats={playerStats} charts={charts} loading={loading} />
+        </Container>
+      </Box>
     </ThemeProvider>
   );
 }

@@ -1,6 +1,6 @@
 // client/src/components/StatsDisplay.js
 import React, { useState, useMemo } from 'react';
-import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel } from '@mui/material';
+import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Fade } from '@mui/material';
 
 const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = useState(config);
@@ -85,12 +85,13 @@ const StatsDisplay = ({ stats, charts, loading }) => {
   }
 
   return (
+    <Fade in={!loading} timeout={500}>
     <Box sx={{ mt: 4 }}>
       <Typography variant="h5" component="h2" gutterBottom align="center">
         Player Stats Summary
       </Typography>
       
-      <TableContainer component={Paper} sx={{ mb: 4 }}>
+      <TableContainer component={Paper} sx={{ mb: 4, borderRadius: 2 }}>
         <Table>
           <TableHead>
             <TableRow>
@@ -100,6 +101,7 @@ const StatsDisplay = ({ stats, charts, loading }) => {
                   align={headCell.numeric ? 'right' : 'left'}
                   padding={headCell.disablePadding ? 'none' : 'normal'}
                   sortDirection={sortConfig && sortConfig.key === headCell.id ? sortConfig.direction : false}
+                  sx={{ py: 2, px: 2 }}
                 >
                   <TableSortLabel
                     active={sortConfig && sortConfig.key === headCell.id}
@@ -114,8 +116,8 @@ const StatsDisplay = ({ stats, charts, loading }) => {
           </TableHead>
           <TableBody>
             {sortedStats.map((player) => (
-              <TableRow key={player.id}>
-                <TableCell component="th" scope="row">
+              <TableRow key={player.id} hover>
+                <TableCell component="th" scope="row" sx={{ color: 'text.primary', fontWeight: 'medium' }}>
                   {player.name}
                 </TableCell>
                 <TableCell align="right">{(player.summaryStats.kd / 100).toFixed(2)}</TableCell>
@@ -135,39 +137,20 @@ const StatsDisplay = ({ stats, charts, loading }) => {
 
       {charts && (
         <Grid container spacing={4} justifyContent="center">
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6" component="h3" gutterBottom align="center">
-              K/D Ratio
-            </Typography>
-            <img src={charts.kd} alt="K/D Chart" style={{ maxWidth: '100%', height: 'auto' }} />
-          </Grid>
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6" component="h3" gutterBottom align="center">
-              Average Damage per Round (ADR)
-            </Typography>
-            <img src={charts.adr} alt="ADR Chart" style={{ maxWidth: '100%', height: 'auto' }} />
-          </Grid>
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6" component="h3" gutterBottom align="center">
-              Wins
-            </Typography>
-            <img src={charts.wins} alt="Wins Chart" style={{ maxWidth: '100%', height: 'auto' }} />
-          </Grid>
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6" component="h3" gutterBottom align="center">
-              Kills per Round
-            </Typography>
-            <img src={charts.kpr} alt="Kills per Round Chart" style={{ maxWidth: '100%', height: 'auto' }} />
-          </Grid>
-          <Grid item xs={12} md={6} sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Typography variant="h6" component="h3" gutterBottom align="center">
-              Kills
-            </Typography>
-            <img src={charts.kills} alt="Kills Chart" style={{ maxWidth: '100%', height: 'auto' }} />
-          </Grid>
+          {Object.entries(charts).map(([key, chart]) => (
+            <Grid item xs={12} md={6} key={key}>
+              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', backgroundColor: 'background.paper' }}>
+                <Typography variant="h6" component="h3" gutterBottom align="center">
+                  {key.toUpperCase()}
+                </Typography>
+                <img src={chart} alt={`${key} Chart`} style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+              </Paper>
+            </Grid>
+          ))}
         </Grid>
       )}
     </Box>
+  </Fade>
   );
 };
 
