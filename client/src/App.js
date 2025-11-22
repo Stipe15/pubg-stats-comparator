@@ -1,22 +1,19 @@
-// client/src/App.js
 import React, { useState } from 'react';
 import { Container, Typography, CssBaseline, ThemeProvider, Box } from '@mui/material';
 import PlayerInput from './components/PlayerInput';
 import StatsDisplay from './components/StatsDisplay';
 import Header from './components/Header';
-import axios from 'axios';
+import { fetchPlayerStats as fetchStats } from './api';
 import theme from './theme';
 
 function App() {
   const [playerStats, setPlayerStats] = useState([]);
-  const [charts, setCharts] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
   const fetchPlayerStats = async (playerNames) => {
     if (playerNames.length === 0) {
       setPlayerStats([]);
-      setCharts(null);
       return;
     }
 
@@ -24,11 +21,10 @@ function App() {
     setError(null);
 
     try {
-      const response = await axios.get(`http://localhost:5001/api/players/summary?playerNames=${playerNames.join(',')}`);
-      setPlayerStats(response.data.stats);
-      setCharts(response.data.charts);
+      const stats = await fetchStats(playerNames);
+      setPlayerStats(stats);
     } catch (err) {
-      setError('Failed to fetch player data. Make sure the server is running and player names are correct.');
+      setError('Failed to fetch player data. Make sure the API key is correct and player names are valid.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -50,11 +46,12 @@ function App() {
           </Typography>
           <PlayerInput onSearch={fetchPlayerStats} loading={loading} />
           {error && <Typography color="error" align="center" style={{ margin: '1rem' }}>{error}</Typography>}
-          <StatsDisplay stats={playerStats} charts={charts} loading={loading} />
+          <StatsDisplay stats={playerStats} loading={loading} />
         </Container>
       </Box>
     </ThemeProvider>
   );
 }
+
 
 export default App;

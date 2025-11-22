@@ -1,6 +1,6 @@
-// client/src/components/StatsDisplay.js
 import React, { useState, useMemo } from 'react';
 import { Grid, Paper, Typography, Box, CircularProgress, Alert, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableSortLabel, Fade } from '@mui/material';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
 const useSortableData = (items, config = null) => {
   const [sortConfig, setSortConfig] = useState(config);
@@ -8,11 +8,21 @@ const useSortableData = (items, config = null) => {
   const sortedItems = useMemo(() => {
     let sortableItems = [...items];
     if (sortConfig !== null) {
+      const key = sortConfig.key;
+      const getValue = (obj) => {
+        // if sorting by name use top-level name, otherwise read from summaryStats and fallback to 0
+        if (key === 'name') return (obj && obj.name) ? String(obj.name).toLowerCase() : '';
+        const v = obj && obj.summaryStats ? obj.summaryStats[key] : 0;
+        // ensure numeric comparison for missing/invalid values
+        return typeof v === 'number' ? v : Number(v) || 0;
+      };
       sortableItems.sort((a, b) => {
-        if (a.summaryStats[sortConfig.key] < b.summaryStats[sortConfig.key]) {
+        const aVal = getValue(a);
+        const bVal = getValue(b);
+        if (aVal < bVal) {
           return sortConfig.direction === 'ascending' ? -1 : 1;
         }
-        if (a.summaryStats[sortConfig.key] > b.summaryStats[sortConfig.key]) {
+        if (aVal > bVal) {
           return sortConfig.direction === 'ascending' ? 1 : -1;
         }
         return 0;
@@ -49,7 +59,48 @@ const headCells = [
   { id: 'wins', numeric: true, disablePadding: false, label: 'Wins' },
 ];
 
-const StatsDisplay = ({ stats, charts, loading }) => {
+// small palette used to color each bar (will cycle if more entries than colors)
+const COLORS = [
+  '#4caf50', // green
+  '#2196f3', // blue
+  '#ff9800', // orange
+  '#9c27b0', // purple
+  '#f44336', // red
+  '#00bcd4', // cyan
+  '#ffc107', // amber
+  '#8bc34a', // light green
+];
+
+const Chart = ({ data, dataKey, title }) => (
+  <Grid item sx={{ display: 'flex', flex: '0 1 45%', maxWidth: '45%', minWidth: 260, boxSizing: 'border-box', p: 1 }}>
+    <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', width: '100%', backgroundColor: 'background.paper' }}>
+      <Typography variant="h6" component="h3" gutterBottom align="center">
+        {title}
+      </Typography>
+      <ResponsiveContainer width="100%" height={300}>
+        <BarChart data={data} margin={{ top: 20, right: 20, left: 20, bottom: 40 }}>
+          <XAxis
+            dataKey="name"
+            angle={-45}
+            textAnchor="end"
+            interval={0}
+            height={60}
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis tick={{ fontSize: 12 }} />
+          <Tooltip />
+          <Bar dataKey={dataKey}>
+            {data.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+            ))}
+          </Bar>
+        </BarChart>
+      </ResponsiveContainer>
+    </Paper>
+  </Grid>
+);
+
+const StatsDisplay = ({ stats, loading }) => {
   const { items: sortedStats, requestSort, sortConfig } = useSortableData(stats, { key: 'kpr', direction: 'descending' });
 
   if (loading) {
@@ -83,6 +134,28 @@ const StatsDisplay = ({ stats, charts, loading }) => {
       </Alert>
     );
   }
+  
+  // helper formatters to avoid calling toFixed on undefined
+  const fmt = (v, decimals = 2) => {
+    const n = (v === null || v === undefined) ? 0 : Number(v);
+    if (Number.isNaN(n)) return (0).toFixed(decimals);
+    return n.toFixed(decimals);
+  };
+  const fmtInt = (v) => {
+    const n = (v === null || v === undefined) ? 0 : Number(v);
+    if (Number.isNaN(n)) return '0';
+    return String(Math.round(n));
+  };
+
+  const chartData = sortedStats.map(player => ({
+    name: player.name || '',
+    kd: Number(player?.summaryStats?.kd ?? 0) / 100, // divided by 100
+    adr: Number(player?.summaryStats?.adr ?? 0),
+    kpr: Number(player?.summaryStats?.kpr ?? 0),
+    kills: Number(player?.summaryStats?.kills ?? 0),
+    wins: Number(player?.summaryStats?.wins ?? 0),
+  }));
+  console.log(chartData);
 
   return (
     <Fade in={!loading} timeout={500}>
@@ -108,7 +181,10 @@ const StatsDisplay = ({ stats, charts, loading }) => {
                     direction={sortConfig && sortConfig.key === headCell.id ? sortConfig.direction : 'asc'}
                     onClick={() => requestSort(headCell.id)}
                   >
-                    {headCell.label}
+                    {/* smaller label */}
+                    <Typography variant="caption" component="span">
+                      {headCell.label}
+                    </Typography>
                   </TableSortLabel>
                 </TableCell>
               ))}
@@ -120,35 +196,28 @@ const StatsDisplay = ({ stats, charts, loading }) => {
                 <TableCell component="th" scope="row" sx={{ color: 'text.primary', fontWeight: 'medium' }}>
                   {player.name}
                 </TableCell>
-                <TableCell align="right">{(player.summaryStats.kd / 100).toFixed(2)}</TableCell>
-                <TableCell align="right">{player.summaryStats.adr.toFixed(2)}</TableCell>
-                <TableCell align="right">{player.summaryStats.kpr.toFixed(2)}</TableCell>
-                <TableCell align="right">{player.summaryStats.kills}</TableCell>
-                <TableCell align="right">{player.summaryStats.assists}</TableCell>
-                <TableCell align="right">{player.summaryStats.longestKill.toFixed(2)}</TableCell>
-                <TableCell align="right">{player.summaryStats.damageDealt.toFixed(2)}</TableCell>
-                <TableCell align="right">{player.summaryStats.roundsPlayed}</TableCell>
-                <TableCell align="right">{player.summaryStats.wins}</TableCell>
+                <TableCell align="right">{fmt((player?.summaryStats?.kd ?? 0) / 100, 2)}</TableCell> {/* divided by 100 */}
+                <TableCell align="right">{fmt(player?.summaryStats?.adr, 2)}</TableCell>
+                <TableCell align="right">{fmt(player?.summaryStats?.kpr, 2)}</TableCell>
+                <TableCell align="right">{fmtInt(player?.summaryStats?.kills)}</TableCell>
+                <TableCell align="right">{fmtInt(player?.summaryStats?.assists)}</TableCell>
+                <TableCell align="right">{fmt(player?.summaryStats?.longestKill, 2)}</TableCell>
+                <TableCell align="right">{fmt(player?.summaryStats?.damageDealt, 2)}</TableCell>
+                <TableCell align="right">{fmtInt(player?.summaryStats?.roundsPlayed)}</TableCell>
+                <TableCell align="right">{fmtInt(player?.summaryStats?.wins)}</TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {charts && (
-        <Grid container spacing={4} justifyContent="center">
-          {Object.entries(charts).map(([key, chart]) => (
-            <Grid item xs={12} md={6} key={key}>
-              <Paper sx={{ p: 2, display: 'flex', flexDirection: 'column', alignItems: 'center', height: '100%', backgroundColor: 'background.paper' }}>
-                <Typography variant="h6" component="h3" gutterBottom align="center">
-                  {key.toUpperCase()}
-                </Typography>
-                <img src={chart} alt={`${key} Chart`} style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
-              </Paper>
-            </Grid>
-          ))}
-        </Grid>
-      )}
+      <Grid container spacing={2} justifyContent="center" sx={{ display: 'flex', flexWrap: 'wrap' }}>
+        <Chart data={chartData} dataKey="kd" title="K/D Ratio" />
+        <Chart data={chartData} dataKey="adr" title="ADR" />
+        <Chart data={chartData} dataKey="wins" title="Wins" />
+        <Chart data={chartData} dataKey="kpr" title="Kills per Round" />
+        <Chart data={chartData} dataKey="kills" title="Total Kills" />
+      </Grid>
     </Box>
   </Fade>
   );
