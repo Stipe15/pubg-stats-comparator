@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/pubg-stats-comparator/static/css/main.17756b17.css",
-    "main.js": "/pubg-stats-comparator/static/js/main.9a7b30e5.js",
+    "main.js": "/pubg-stats-comparator/static/js/main.c0dbcd62.js",
     "index.html": "/pubg-stats-comparator/index.html",
     "main.17756b17.css.map": "/pubg-stats-comparator/static/css/main.17756b17.css.map",
-    "main.9a7b30e5.js.map": "/pubg-stats-comparator/static/js/main.9a7b30e5.js.map"
+    "main.c0dbcd62.js.map": "/pubg-stats-comparator/static/js/main.c0dbcd62.js.map"
   },
   "entrypoints": [
     "static/css/main.17756b17.css",
-    "static/js/main.9a7b30e5.js"
+    "static/js/main.c0dbcd62.js"
   ]
 }
